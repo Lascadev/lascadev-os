@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lascadev OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,700;0,800;1,700;1,800&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --ui: Tahoma, Verdana, "Segoe UI", "DejaVu Sans", sans-serif;
+  --brand: "Libre Franklin", "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  --mono: "Lucida Console", Consolas, "DejaVu Sans Mono", monospace;
+  --login-mid:#5a7edc; --login-bar:#00309c; --orange:#ff7a1a;
+  --face:#ece9d8; --face-dark:#aca899; --title-a:#0058ee; --title-b:#3a93ff;
+  --task-a:#245edb; --task-b:#1941a5; --start-a:#3c9a3c; --start-b:#2a7a2a;
+}
+html,body{height:100%}
+body{margin:0;background:#000;color:#fff;font:13px/1.4 var(--ui);overflow:hidden;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+.screen{position:fixed;inset:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:1px dotted #fff;outline-offset:2px}
+
+/* ---------- Boot ---------- */
+#boot{background:#000;display:grid;place-items:center;cursor:progress}
+.boot-center{display:flex;flex-direction:column;align-items:center;gap:34px;padding-inline:16px}
+.mark{display:flex;flex-direction:column;align-items:center;gap:4px}
+.mark svg{width:118px;height:118px;filter:drop-shadow(0 6px 18px rgba(40,120,255,.35))}
+.word{font-family:var(--brand);font-weight:800;font-size:clamp(44px,9vw,66px);letter-spacing:-1px;line-height:1;position:relative;color:#fff}
+.word sup{font-style:italic;font-weight:700;color:var(--orange);font-size:.42em;position:absolute;top:-.2em;left:100%;margin-left:4px;letter-spacing:0}
+.role{font-family:var(--brand);font-style:italic;font-weight:700;font-size:15px;align-self:flex-start;margin-left:18%;margin-top:2px}
+.bar{width:156px;height:17px;border:2px solid #b3b3b3;border-radius:5px;overflow:hidden;position:relative;padding:2px}
+.bar i{position:absolute;top:3px;width:8px;height:9px;border-radius:1px;background:linear-gradient(#bcd2ff,#2f62e6 45%,#1c47c9);animation:slide 2.1s linear infinite}
+.bar i:nth-child(2){animation-delay:.12s}.bar i:nth-child(3){animation-delay:.24s}
+@keyframes slide{from{left:-30px}to{left:170px}}
+.boot-foot{position:absolute;inset:auto 0 0 0;display:flex;justify-content:space-between;align-items:flex-end;padding:0 max(16px,5vw) calc(28px + env(safe-area-inset-bottom,0px));font-size:11px;color:#ddd;gap:16px}
+.boot-foot b{font-family:var(--brand);font-style:italic;font-weight:800;font-size:22px;color:#fff}
+
+#black{background:#000}
+
+/* ---------- Login + welcome ---------- */
+.xp-frame{display:grid;grid-template-rows:12vh 1fr 12vh;background:var(--login-mid)}
+.xp-frame .top{background:var(--login-bar);position:relative}
+.xp-frame .top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,#c5d6ff 30%,#fff 50%,#c5d6ff 70%,transparent)}
+.xp-frame .mid{background:radial-gradient(ellipse 60% 70% at 18% 10%,#8ea8ec 0%,rgba(142,168,236,0) 70%),var(--login-mid);position:relative;min-height:0}
+.xp-frame .bot{background:var(--login-bar);position:relative;display:flex;align-items:center;justify-content:space-between;padding:0 max(16px,3vw);gap:16px}
+.xp-frame .bot::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,#f99a4b 35%,#ffcf9a 50%,#f99a4b 65%,transparent)}
+.login-mid{display:grid;grid-template-columns:1fr 1px 1fr;align-items:center;height:100%}
+.login-left{justify-self:end;margin-right:clamp(20px,5vw,70px);display:flex;flex-direction:column;align-items:flex-end;gap:14px;text-align:right}
+.login-left .mark{align-items:flex-end}
+.login-left .mark svg{width:84px;height:84px}
+.login-left .word{font-size:clamp(30px,4.6vw,44px);text-shadow:0 1px 2px rgba(0,0,60,.35)}
+.login-left .role{font-size:12px;margin:0;align-self:flex-end;margin-right:30%}
+.login-left p{margin:14px 0 0;font-size:15px}
+.divider{height:70%;background:linear-gradient(transparent,rgba(255,255,255,.7) 40%,rgba(255,255,255,.7) 60%,transparent)}
+.users{justify-self:start;margin-left:clamp(20px,4vw,60px)}
+.user{display:flex;align-items:center;gap:14px;padding:8px 40px 8px 10px;border:0;background:transparent;cursor:pointer;border-radius:8px 0 0 8px;text-align:left;transition:background .15s}
+.user:hover,.user:focus-visible{background:linear-gradient(90deg,#1e4cc0,rgba(30,76,192,0))}
+.avatar{width:58px;height:58px;border-radius:6px;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,50,.4);overflow:hidden;flex:none;background:linear-gradient(135deg,#ffb45c,#f2651e)}
+.user:hover .avatar{border-color:#ffd24d}
+.user strong{display:block;font-size:20px;font-weight:400}
+.user small{display:block;font-size:11px;color:#c9d7ff}
+.restart{display:flex;align-items:center;gap:8px;background:none;border:0;cursor:pointer;font-size:13px;padding:4px}
+.restart span.ic{width:24px;height:24px;border-radius:4px;border:1px solid #fff;background:linear-gradient(#e46b4c,#b8321a);display:grid;place-items:center}
+.restart:hover{text-decoration:underline}
+.bot .note{font-size:11px;text-align:right;max-width:340px}
+#welcome .mid{display:grid;place-items:center}
+#welcome h1{margin:0;font:italic 700 clamp(34px,6vw,54px)/1 var(--ui);text-shadow:2px 3px 3px rgba(0,20,90,.55);letter-spacing:.5px}
+
+/* ---------- Desktop ---------- */
+#desktop{background:#3a7bd5;overflow:hidden}
+#wall{position:absolute;inset:0;width:100%;height:100%}
+.icons{position:absolute;top:12px;left:8px;bottom:42px;display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start;gap:18px 6px}
+.dicon{width:80px;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;cursor:default;padding:2px}
+.dicon svg{width:40px;height:40px;filter:drop-shadow(1px 2px 1px rgba(0,0,0,.35))}
+.dicon span{font-size:11px;color:#fff;text-shadow:1px 1px 1px #000,0 0 2px #000;padding:0 2px;text-align:center;line-height:1.25}
+.dicon.sel span{background:#0b61ff;text-shadow:none}
+.dicon.sel svg{filter:drop-shadow(1px 2px 1px rgba(0,0,0,.35)) brightness(.75) sepia(1) hue-rotate(185deg) saturate(3)}
+#wins{position:absolute;inset:0 0 30px 0;pointer-events:none}
+.dicon.bin{position:absolute;right:14px;top:14px;width:90px}
+.dlg-wrap{position:absolute;inset:0 0 30px 0;display:grid;place-items:center;z-index:9500;padding-inline:16px}
+.win.dlg{position:relative;min-width:0;min-height:0;width:380px;max-width:100%;box-shadow:3px 4px 16px rgba(0,0,0,.5)}
+.dlg-body{display:flex;gap:16px;align-items:flex-start;padding:18px 18px 10px;background:var(--face)}
+.dlg-ic{width:44px;height:44px;flex:none}
+.dlg-body p{margin:4px 0 0;font-size:13px;line-height:1.45}
+.dlg-body small{display:block;margin-top:6px;color:#555;font-size:11px}
+.dlg-btns{display:flex;justify-content:center;gap:10px;padding:6px 18px 16px;background:var(--face)}
+.dlg-btns .xbtn{min-width:78px;padding:4px 12px;font-size:12px}
+.dlg-btns .xbtn:focus-visible{outline:1px dotted #000;outline-offset:-4px}
+
+.taskbar{position:absolute;left:0;right:0;bottom:0;height:30px;padding-bottom:env(safe-area-inset-bottom,0px);display:flex;align-items:stretch;background:linear-gradient(#3168d5 0,#4993e6 6%,#2157d7 12%,#2663e0 90%,#1941a5 100%);z-index:9000}
+.start{display:flex;align-items:center;gap:6px;padding:0 22px 0 10px;border:0;border-radius:0 12px 12px 0;cursor:pointer;background:linear-gradient(#5eac56 0,#3c9a3c 12%,#2f8a2f 85%,#236d23 100%);box-shadow:inset -2px 0 3px rgba(0,0,0,.25),2px 0 3px rgba(0,0,0,.25);font:italic 700 17px/1 var(--brand);text-shadow:1px 1px 2px rgba(0,0,0,.5)}
+.start:hover{filter:brightness(1.08)}
+.start.on{background:linear-gradient(#2c7a2c,#236d23)}
+.start svg{width:20px;height:20px}
+.tasks{flex:1;display:flex;gap:3px;padding:3px 6px;min-width:0;overflow:hidden}
+.tbtn{flex:0 1 160px;min-width:40px;display:flex;align-items:center;gap:6px;padding:0 8px;border:0;border-radius:3px;cursor:pointer;background:linear-gradient(#5b9bf8,#3c81f3 20%,#3073e8);box-shadow:inset 0 0 0 1px rgba(0,0,60,.25);font-size:11px;white-space:nowrap;overflow:hidden}
+.tbtn span{overflow:hidden;text-overflow:ellipsis}
+.tbtn svg{width:16px;height:16px;flex:none}
+.tbtn.active{background:linear-gradient(#1e52b7,#1a49a8);box-shadow:inset 1px 1px 2px rgba(0,0,0,.45)}
+.tray{display:flex;align-items:center;gap:8px;padding:0 12px 0 14px;background:linear-gradient(#0c59b9,#139ee9 8%,#18b9f5 45%,#139ee9 92%,#0c59b9);border-left:1px solid #092e7a;box-shadow:inset 1px 0 1px #1fa4f0;font-size:11px;font-variant-numeric:tabular-nums}
+.tray svg{width:15px;height:15px}
+
+.balloon{position:absolute;right:10px;bottom:40px;width:270px;max-width:calc(100% - 32px);background:#ffffe1;color:#000;border:1px solid #000;border-radius:8px;padding:10px 26px 10px 12px;font-size:11px;z-index:9001;box-shadow:2px 3px 6px rgba(0,0,0,.35)}
+.balloon::after{content:"";position:absolute;right:40px;bottom:-10px;border:10px solid transparent;border-bottom:0;border-top-color:#ffffe1;filter:drop-shadow(0 1px 0 #000)}
+.balloon b{display:block;margin-bottom:4px}
+.balloon button{position:absolute;right:6px;top:6px;width:16px;height:16px;border:1px solid #b9b9a0;border-radius:3px;background:#fff;color:#555;font-size:10px;line-height:1;padding:0;cursor:pointer}
+
+/* Start menu */
+.smenu{position:absolute;left:0;bottom:30px;width:380px;max-width:calc(100vw - 16px);border-radius:8px 8px 0 0;overflow:hidden;background:#fff;color:#000;box-shadow:3px -2px 8px rgba(0,0,0,.45);z-index:9002;border:1px solid #1e58c8}
+.smenu header{display:flex;align-items:center;gap:10px;padding:8px 10px;background:linear-gradient(#1868ce,#0e60cb 12%,#0e60cb 80%,#1553a6);color:#fff;font:700 15px var(--ui);text-shadow:1px 1px 2px rgba(0,0,0,.4)}
+.smenu header .avatar{width:42px;height:42px;border-width:2px}
+.smenu .cols{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid #f39c3c}
+.smenu ul{list-style:none;margin:0;padding:6px 0}
+.smenu .right{background:#d3e5fa;border-left:1px solid #95bdee}
+.smenu li button{display:flex;align-items:center;gap:8px;width:100%;padding:5px 8px;border:0;background:none;color:#000;cursor:pointer;text-align:left;font-size:12px}
+.smenu li button:hover,.smenu li button:focus-visible{background:#2f71cd;color:#fff}
+.smenu li button svg{width:28px;height:28px;flex:none}
+.smenu .right li button svg{width:22px;height:22px}
+.smenu .left li button b{display:block;font-size:12px}
+.smenu .left li button small{display:block;font-size:10px;color:#777}
+.smenu .left li button:hover small{color:#dde8ff}
+.smenu footer{display:flex;justify-content:flex-end;gap:14px;padding:8px 10px;background:linear-gradient(#1868ce,#0e60cb 20%,#1553a6)}
+.smenu footer button{display:flex;align-items:center;gap:6px;background:none;border:0;cursor:pointer;color:#fff;font-size:11px}
+.smenu footer button:hover{text-decoration:underline}
+.smenu footer .ic{width:22px;height:22px;border-radius:4px;border:1px solid #fff;display:grid;place-items:center}
+
+/* Windows */
+.win{position:absolute;pointer-events:auto;display:flex;flex-direction:column;background:var(--title-a);border:1px solid #0831d9;border-radius:8px 8px 0 0;padding:0 3px 3px;box-shadow:2px 3px 12px rgba(0,0,0,.4);min-width:260px;min-height:160px;color:#000}
+.win.inactive{background:#7a96df;border-color:#6582d1}
+.tbar{height:28px;display:flex;align-items:center;gap:6px;padding:0 3px 0 5px;margin:0 -3px;border-radius:7px 7px 0 0;background:linear-gradient(#0997ff,#0053ee 8%,#0050ee 40%,#06f 88%,#06f 93%,#005bff 95%,#003dd7 96%,#003dd7);color:#fff;font:700 13px var(--ui);text-shadow:1px 1px #0f1089;cursor:default;touch-action:none;user-select:none}
+.win.inactive .tbar{background:linear-gradient(#a8bff5,#7a96df 10%,#7a96df 90%,#6f8ad6);text-shadow:none;color:#d8e4f8}
+.tbar svg.ti{width:16px;height:16px;flex:none}
+.tbar .tt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wb{width:21px;height:21px;border:1px solid #fff;border-radius:3px;background:linear-gradient(135deg,#6aa0ff,#2360e8 60%,#1a4fd6);display:grid;place-items:center;cursor:pointer;padding:0}
+.wb:hover{filter:brightness(1.15)}
+.wb.x{background:linear-gradient(135deg,#f0a78f,#e0532f 45%,#c63a17)}
+.wb svg{width:11px;height:11px}
+.win.inactive .wb{opacity:.75}
+.wbody{flex:1;min-height:0;background:var(--face);overflow:auto;display:flex;flex-direction:column}
+.win.max{border-radius:0}
+.menubar{display:flex;gap:2px;padding:2px 4px;border-bottom:1px solid #d4d0c8;font-size:12px;background:var(--face)}
+.menubar span{padding:1px 6px}
+.status{border-top:1px solid #aca899;padding:3px 8px;font-size:11px;color:#333;background:var(--face)}
+
+/* About */
+.about{display:grid;grid-template-columns:120px 1fr;gap:18px;padding:18px;background:#fff;flex:1}
+.about .side{display:flex;flex-direction:column;align-items:center;gap:10px}
+.about .side svg{width:96px;height:96px}
+.about h2{margin:0 0 2px;font:800 24px/1.1 var(--brand);color:#0b3fa8}
+.about h3{margin:16px 0 6px;font-size:12px;color:#0b3fa8;border-bottom:1px solid #c5d4f0;padding-bottom:3px}
+.about p{margin:0 0 8px;max-width:62ch}
+.specs{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;font-size:12px;margin:0}
+.specs dt{color:#666}.specs dd{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.langs{display:flex;border:1px solid #7f9db9;border-radius:3px;overflow:hidden}
+.lang{font-size:11px;padding:3px 9px;border:0;background:linear-gradient(#fff,#e3ebf7);color:#000;cursor:pointer}
+.lang+.lang{border-left:1px solid #7f9db9}
+.lang:hover{box-shadow:inset 0 0 0 2px #fbca5a}
+.lang.on{background:linear-gradient(#2f71cd,#1c55b0);color:#fff;cursor:default;box-shadow:inset 1px 1px 2px rgba(0,0,0,.35)}
+.about-text{transition:opacity .18s ease,transform .18s ease}
+.about-text.fading{opacity:0;transform:translateY(4px)}
+.chip{font-size:11px;padding:1px 7px;border:1px solid #7f9db9;border-radius:3px;background:linear-gradient(#fff,#e3ebf7)}
+
+/* Explorer */
+.addr{display:flex;align-items:center;gap:6px;padding:3px 6px;border-bottom:1px solid #d4d0c8;font-size:12px;background:var(--face)}
+.addr div{flex:1;background:#fff;border:1px solid #7f9db9;padding:2px 6px;display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden}
+.addr svg{width:16px;height:16px;flex:none}
+.explorer{display:grid;grid-template-columns:210px 1fr;flex:1;min-height:0}
+.tasks-pane{background:linear-gradient(#7ba2e7,#6375d6);padding:12px;overflow:auto}
+.tp-box{border-radius:5px 5px 0 0;overflow:hidden;background:#d6dff7}
+.tp-box h4{margin:0;padding:6px 10px;background:linear-gradient(90deg,#fff,#c6d3f7);color:#215dc6;font-size:12px}
+.tp-box .in{padding:10px;font-size:11px;color:#000}
+.tp-box .in b.in-b{display:inline;font-size:11px;margin:0}
+.tp-box .in b{display:block;font-size:13px;color:#0b3fa8;margin-bottom:4px}
+.tp-box .in p{margin:0 0 8px}
+.tp-box .kind{color:#555;margin-bottom:6px}
+.files{background:#fff;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;align-content:start;overflow:auto}
+.file{display:flex;flex-direction:column;align-items:center;gap:4px;border:1px solid transparent;background:none;padding:6px 2px;cursor:pointer;font-size:11px;color:#000;text-align:center;border-radius:2px}
+.file svg{width:44px;height:44px}
+.file.sel{background:#316ac5;color:#fff;border-color:#316ac5}
+.file small{color:#777}.file.sel small{color:#dbe6ff}
+
+/* CV */
+.reader{background:#7d7d7d;flex:1;padding:18px;overflow:auto}
+.page{background:#fff;max-width:620px;margin:0 auto;padding:34px 38px;box-shadow:0 2px 8px rgba(0,0,0,.4);font-family:Georgia,"Times New Roman",serif;color:#1b1b1b}
+.page h2{margin:0;font:800 28px/1 var(--brand);letter-spacing:-.5px}
+.page .sub{margin:4px 0 0;font:12px var(--ui);color:#555}
+.page h3{font:700 11px var(--ui);text-transform:uppercase;letter-spacing:1.2px;color:#0b3fa8;margin:22px 0 8px;border-bottom:1px solid #d8dfee;padding-bottom:4px}
+.page p,.page li{font-size:13.5px;line-height:1.55}
+.page ul{margin:4px 0 0;padding-left:18px}
+.page .job{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font:700 13px var(--ui)}
+.page .job span{font-weight:400;color:#666}
+.page .job+ul{margin-bottom:12px}
+.page a{color:#0b3fa8}
+.cv-skills{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0;font-size:13px}
+.cv-skills dt{font:700 12px var(--ui);color:#333;padding-top:1px}
+.cv-skills dd{margin:0}
+@media (max-width:520px){.cv-skills{grid-template-columns:1fr;gap:0}.cv-skills dd{margin-bottom:6px}}
+.tool{display:flex;gap:6px;padding:3px 6px;background:var(--face);border-bottom:1px solid #aca899;font-size:11px;align-items:center}
+
+/* Contact */
+.mail{display:flex;flex-direction:column;flex:1;background:var(--face)}
+.mrow{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:6px;padding:4px 8px;font-size:12px}
+.mrow input,.mail textarea{font:12px var(--ui);border:1px solid #7f9db9;padding:3px 5px;background:#fff;color:#000;min-width:0}
+.mail textarea{flex:1;margin:4px 8px 8px;resize:none;min-height:120px}
+.to{display:flex;gap:6px;align-items:center;min-width:0}
+.to code{flex:1;background:#fff;border:1px solid #7f9db9;padding:3px 5px;font:12px var(--ui);user-select:all;overflow:hidden;text-overflow:ellipsis}
+.xbtn{font-size:11px;padding:3px 10px;border:1px solid #003c74;border-radius:3px;background:linear-gradient(#fff,#ece9d8 85%,#d6d0c5);color:#000;cursor:pointer;white-space:nowrap}
+.xbtn:hover{box-shadow:inset 0 0 0 2px #fbca5a}
+.send-row{display:flex;align-items:center;gap:10px;padding:0 8px 8px;font-size:11px;color:#333}
+
+/* Terminal */
+.game{flex:1;min-height:0;width:100%;border:0;display:block;background:#000}
+.game-status{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px}
+.game-status a{color:#0b3fa8}
+.term{background:#000;color:#c0c0c0;font:13px/1.45 var(--mono);flex:1;padding:8px;overflow:auto;cursor:text}
+.term pre{margin:0;white-space:pre-wrap;word-break:break-word;font:inherit}
+.term .ln{display:flex;gap:0}
+.term input{flex:1;background:transparent;border:0;outline:0;color:#c0c0c0;font:inherit;padding:0;min-width:0}
+.term .hl{color:#5fd7ff}
+
+@media (max-width:680px){
+  .login-mid{grid-template-columns:1fr;grid-template-rows:auto auto;align-content:center;gap:34px}
+  .divider{display:none}
+  .login-left,.users{justify-self:center;margin:0;align-items:center;text-align:center}
+  .login-left .mark{align-items:center}
+  .login-left .role{align-self:center;margin:0}
+  .bot .note{display:none}
+  .win{left:0!important;top:0!important;width:100%!important;height:100%!important;border-radius:0!important}
+  .explorer{grid-template-columns:1fr;grid-template-rows:1fr auto}
+  .tasks-pane{order:2;max-height:45%}
+  .about{grid-template-columns:1fr}
+  .about .side{flex-direction:row}
+  .about .side svg{width:64px;height:64px}
+  .page{padding:22px 18px}
+  .role{margin-left:0;align-self:center}
+}
+@media (prefers-reduced-motion:reduce){.bar i{animation-duration:6s}}
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="boot" class="screen" role="button" tabindex="0" aria-label="Iniciando Lascadev OS. Haz clic para saltar">
+  <div class="boot-center">
+    <div class="mark">
+      <span class="emb" data-size="118"></span>
+      <div class="word">Lascadev<sup>os</sup></div>
+      <div class="role">Full-Stack Developer</div>
+    </div>
+    <div class="bar"><i></i><i></i><i></i></div>
+  </div>
+  <div class="boot-foot">
+    <div>Para una mejor experiencia<br>activa pantalla completa (F11)</div>
+    <b>Portafolio</b>
+  </div>
+</div>
+
+<div id="black" class="screen" hidden></div>
+
+<!-- LOGIN -->
+<div id="login" class="screen xp-frame" hidden>
+  <div class="top"></div>
+  <div class="mid">
+    <div class="login-mid">
+      <div class="login-left">
+        <div class="mark">
+          <span class="emb" data-size="84"></span>
+          <div class="word">Lascadev<sup>os</sup></div>
+          <div class="role">Full-Stack Developer</div>
+        </div>
+        <p>Para comenzar, haz clic en Lascadev</p>
+      </div>
+      <div class="divider"></div>
+      <div class="users">
+        <button class="user" id="userBtn">
+          <span class="avatar" id="av1"></span>
+          <span><strong>Lascadev</strong><small>Luis · desarrollador móvil y web</small></span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="bot">
+    <button class="restart" id="restartBtn"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 2v6" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M4.5 4.2a5 5 0 1 0 7 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span>Reiniciar Lascadev OS</button>
+    <div class="note">Después de iniciar sesión, el sistema es tuyo para explorar.<br>Cada detalle fue construido con un propósito.</div>
+  </div>
+</div>
+
+<!-- WELCOME -->
+<div id="welcome" class="screen xp-frame" hidden>
+  <div class="top"></div>
+  <div class="mid"><h1>bienvenido</h1></div>
+  <div class="bot"></div>
+</div>
+
+<!-- DESKTOP -->
+<div id="desktop" class="screen" hidden>
+  <canvas id="wall" aria-hidden="true"></canvas>
+  <div class="icons" id="icons"></div>
+  <div id="wins"></div>
+  <div class="smenu" id="smenu" hidden>
+    <header><span class="avatar" id="av2"></span>Lascadev</header>
+    <div class="cols">
+      <ul class="left" id="smLeft"></ul>
+      <ul class="right" id="smRight"></ul>
+    </div>
+    <footer>
+      <button id="logoffBtn"><span class="ic" style="background:linear-gradient(#f7c44a,#e39a11)"><svg width="12" height="12" viewBox="0 0 16 16"><path d="M6 3H3v10h3M10 5l3 3-3 3M13 8H6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>Cerrar sesión</button>
+      <button id="offBtn"><span class="ic" style="background:linear-gradient(#e46b4c,#b8321a)"><svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 2v6" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M4.5 4.2a5 5 0 1 0 7 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span>Apagar</button>
+    </footer>
+  </div>
+  <div class="balloon" id="balloon" hidden>
+    <button aria-label="Cerrar aviso" id="balloonX">✕</button>
+    <b>Bienvenido a Lascadev OS</b>
+    Haz doble clic en un ícono del escritorio o abre el menú inicio para explorar mi trabajo.
+  </div>
+  <div class="taskbar">
+    <button class="start" id="startBtn" aria-haspopup="true"><span class="emb" data-size="20"></span>inicio</button>
+    <div class="tasks" id="tasks"></div>
+    <div class="tray">
+      <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#fff"/><path d="M5 8l2 2 4-4" stroke="#1e8a1e" stroke-width="2" fill="none"/></svg>
+      <svg viewBox="0 0 16 16"><path d="M2 6h3l4-3v10l-4-3H2z" fill="#fff"/><path d="M11 5c1.5 1.5 1.5 4.5 0 6" stroke="#fff" stroke-width="1.4" fill="none"/></svg>
+      <span id="clock">--:--</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+/* ---------- Icons & emblem ---------- */
+let gid = 0;
+function emblem(){
+  const i = ++gid;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs>
+  <radialGradient id="eb${i}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#7fb4ff"/><stop offset=".55" stop-color="#2468e8"/><stop offset="1" stop-color="#0a2f8f"/></radialGradient>
+  <linearGradient id="eg${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6ef6a"/><stop offset="1" stop-color="#2e9a24"/></linearGradient>
+  <linearGradient id="eo${i}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffc04d"/><stop offset="1" stop-color="#ff6a1a"/></linearGradient></defs>
+  <circle cx="50" cy="50" r="45" fill="url(#eb${i})"/>
+  <path d="M6 60 C30 48 62 44 95 52 C92 74 74 92 50 95 C28 94 11 80 6 60Z" fill="url(#eg${i})" opacity=".95"/>
+  <path d="M14 30 C38 20 66 20 88 30" stroke="url(#eo${i})" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="44" cy="26" rx="26" ry="11" fill="#fff" opacity=".28"/>
+  <path d="M38 44 L26 56 L38 68 M62 44 L74 56 L62 68 M55 40 L45 72" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+function avatarSvg(){
+  return `<svg viewBox="0 0 60 60" width="100%" height="100%" aria-hidden="true">
+  <rect width="60" height="60" fill="#2b62d9"/><rect y="38" width="60" height="22" fill="#3aa33a"/>
+  <circle cx="47" cy="13" r="6" fill="#ffd24d"/>
+  <rect x="11" y="18" width="38" height="26" rx="3" fill="#1b1b1b" stroke="#ddd" stroke-width="2"/>
+  <path d="M20 27l-4 4 4 4M40 27l4 4-4 4M32 25l-4 12" stroke="#7CFF6B" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <rect x="6" y="44" width="48" height="5" rx="2" fill="#cfcfcf"/></svg>`;
+}
+const ICONS = {
+  about:`<svg viewBox="0 0 48 48"><defs><radialGradient id="ia" cx="35%" cy="30%"><stop offset="0" stop-color="#9cc7ff"/><stop offset="1" stop-color="#1450c8"/></radialGradient></defs><circle cx="24" cy="24" r="20" fill="url(#ia)" stroke="#0b3a9a"/><circle cx="24" cy="14" r="3.2" fill="#fff"/><rect x="21" y="20" width="6" height="16" rx="2" fill="#fff"/></svg>`,
+  cv:`<svg viewBox="0 0 48 48"><path d="M10 4h20l8 8v32H10z" fill="#fff" stroke="#8a8a8a"/><path d="M30 4v8h8" fill="#e6e6e6" stroke="#8a8a8a"/><rect x="6" y="20" width="26" height="12" rx="1" fill="#d42a1e"/><text x="19" y="29.5" font-family="Tahoma,Verdana,sans-serif" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">CV</text><path d="M14 37h18M14 41h14" stroke="#b5b5b5" stroke-width="2"/></svg>`,
+  projects:`<svg viewBox="0 0 48 48"><defs><linearGradient id="ip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe38a"/><stop offset="1" stop-color="#f0b429"/></linearGradient></defs><path d="M4 12h15l4 4h21v24H4z" fill="#e0a21c"/><path d="M4 18h40v22H4z" fill="url(#ip)" stroke="#c98a10"/><path d="M18 26l-4 3 4 3M30 26l4 3-4 3" stroke="#8a5a00" stroke-width="2" fill="none"/></svg>`,
+  contact:`<svg viewBox="0 0 48 48"><rect x="4" y="11" width="40" height="28" rx="2" fill="#fff" stroke="#6b8fc9"/><path d="M5 12l19 15 19-15" fill="none" stroke="#2f6bd6" stroke-width="2.5"/><circle cx="38" cy="36" r="8" fill="#3aa33a" stroke="#fff" stroke-width="2"/><path d="M34.5 36h7M38 32.5v7" stroke="#fff" stroke-width="2"/></svg>`,
+  terminal:`<svg viewBox="0 0 48 48"><rect x="4" y="8" width="40" height="32" rx="2" fill="#111" stroke="#9a9a9a"/><rect x="4" y="8" width="40" height="6" fill="#2a5bd7"/><path d="M11 22l6 4-6 4" stroke="#c0c0c0" stroke-width="2.5" fill="none"/><path d="M20 32h10" stroke="#c0c0c0" stroke-width="2.5"/></svg>`,
+  trash:`<svg viewBox="0 0 48 48"><defs><linearGradient id="tb" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9fb3c8"/><stop offset=".45" stop-color="#eef5fb"/><stop offset="1" stop-color="#8aa0b8"/></linearGradient></defs><path d="M10 12h28l-3.5 30a3 3 0 0 1-3 2.6h-15a3 3 0 0 1-3-2.6z" fill="url(#tb)" stroke="#5f7894" stroke-width="1.2" opacity=".95"/><ellipse cx="24" cy="12" rx="14" ry="3.6" fill="#dfe9f3" stroke="#5f7894" stroke-width="1.2"/><ellipse cx="24" cy="12" rx="11" ry="2.2" fill="#6f879f" opacity=".5"/><path d="M16 18l1.6 22M24 18v23M32 18l-1.6 22" stroke="#7d93ab" stroke-width="1" opacity=".7"/><g fill="none" stroke="#2f9a2f" stroke-width="2.4" stroke-linecap="round"><path d="M20 26.5l3-4.2 3 4.2"/><path d="M28.6 29.5l-2 4.6h-5"/><path d="M19.2 34.2l-1.8-4.4 2.4-2.2"/></g></svg>`,
+  doom:`<svg viewBox="0 0 48 48"><defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4a4a"/><stop offset="1" stop-color="#151515"/></linearGradient><linearGradient id="dr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb347"/><stop offset=".5" stop-color="#e5341b"/><stop offset="1" stop-color="#7a0f06"/></linearGradient></defs><rect x="5" y="5" width="38" height="38" rx="4" fill="url(#dg)" stroke="#000"/><path d="M11 30l5-14 4 8 4-12 4 12 4-8 5 14z" fill="url(#dr)"/><rect x="9" y="31" width="30" height="7" rx="1" fill="#2a2a2a" stroke="#6b6b6b" stroke-width=".8"/><text x="24" y="36.6" font-family="Tahoma,Verdana,sans-serif" font-size="5.6" font-weight="700" fill="#e5341b" text-anchor="middle" letter-spacing=".6">FREEDOOM</text><rect x="1" y="31" width="15" height="15" fill="#fff" stroke="#6b6b6b"/><path d="M5 43c0-5 2-7 7-7" stroke="#1d4fd8" stroke-width="2.2" fill="none"/><path d="M9.5 33.5l3.5 2.5-3.5 3" fill="#1d4fd8"/></svg>`,
+  folder:`<svg viewBox="0 0 48 48"><path d="M4 12h15l4 4h21v24H4z" fill="#e0a21c"/><path d="M4 18h40v22H4z" fill="#ffd56b" stroke="#c98a10"/></svg>`
+};
+document.querySelectorAll('.emb').forEach(e => { e.outerHTML = emblem(); });
+document.getElementById('av1').innerHTML = avatarSvg();
+document.getElementById('av2').innerHTML = avatarSvg();
+
+/* ---------- Content ---------- */
+const EMAIL = 'lascadev@gmail.com';
+const PROJECTS = [
+  {name:'AutoExpreso', company:'Technology Partners · Puerto Rico', kind:'App móvil · pagos de peaje', desc:'App de pago de peajes para Puerto Rico en React Native con Expo. Compatibilidad con Android 15 (API 35) y páginas de memoria de 16 KB, notificaciones push con Firebase y autenticación con Face ID en iOS 18+.', stack:['React Native','Expo','Firebase','iOS','Android']},
+  {name:'Seguros Múltiples', company:'Technology Partners · Puerto Rico', kind:'Web, móvil y middleware · seguros', desc:'Trabajo para la Cooperativa de Seguros Múltiples de Puerto Rico en tres frentes: <br>• <b class="in-b">GCSM Asistencia</b> (web, Angular): desarrollé todo el apartado de asistencia al usuario.<br>• <b class="in-b">CsmApp</b> (móvil): modificaciones y actualizaciones.<br>• <b class="in-b">Middleware</b>: ajustes para solucionar bugs de la app.', stack:['Angular','React Native','Node.js','Express','TypeScript']},
+  {name:'Citolink', company:'Citolink', kind:'Apps de citofonía', desc:'Sistema de citofonía con apps en React Native: Citolink Residente, Citolink Conserje, Citolink Puerta y el administrador de edificios.', stack:['React Native','TypeScript','Express','Firebase']},
+  {name:'Zkool', company:'Nextstation · Chile', kind:'App móvil · colegio', desc:'App móvil para un colegio de Chile, desarrollada en React Native para Android e iOS.', stack:['React Native','Android','iOS']},
+  {name:'The Grange School', company:'Nextstation · Chile', kind:'App móvil y web', desc:'App móvil en React Native y su aplicación web.', stack:['React Native','React','Web']},
+  {name:'Manabiche', company:'Global Design', kind:'Delivery · marisquería', desc:'Tres apps con Expo para una marisquería con delivery: app administrativa, app de repartidores y app de usuario.', stack:['React Native','Expo','3 apps']},
+  {name:'CRM BaatDigital', company:'BaatDigital', kind:'CRM · mensajería', desc:'CRM con una interfaz de conversaciones parecida a WhatsApp.', stack:['React','CRM']}
+];
+const chips = a => `<div class="chips">${a.map(s=>`<span class="chip">${s}</span>`).join('')}</div>`;
+
+const APPS = {
+  about:{title:'Sobre mí', label:'Sobre mí', sub:'Quién soy', w:560, h:470, html:()=>`
+    <div class="about">
+      <div class="side">${emblem()}<div class="langs" role="group" aria-label="Idioma / Language"><button class="lang on" data-lang="es" aria-pressed="true">Español</button><button class="lang" data-lang="en" aria-pressed="false">English</button></div></div>
+      <div class="about-text" data-about></div>
+    </div>`,
+    init(el){
+      const T = {
+        es:{title:'Sobre mí', role:'Ingeniero Informático · Desarrollador Full Stack web y móvil · San Juan de los Morros, Venezuela',
+          bio:'Más de 5 años construyendo apps web y móviles, del diseño de la interfaz al despliegue en producción. He trabajado en pagos de peaje y seguros en Puerto Rico, apps escolares en Chile, citofonía, delivery y un CRM tipo WhatsApp.',
+          props:'Propiedades del sistema', comps:'Componentes instalados',
+          rows:[['Sistema','Lascadev OS, edición Full-Stack'],['Usuario registrado','Luis Eduardo Ascanio Jiménez'],['Procesador','TypeScript en producción'],['Plataformas','iOS · Android · Web'],['Estado','Disponible para nuevos proyectos']]},
+        en:{title:'About me', role:'Computer Engineer · Full Stack web and mobile developer · San Juan de los Morros, Venezuela',
+          bio:'Over 5 years building web and mobile apps, from interface design to production deployment. My work spans toll payments and insurance in Puerto Rico, school apps in Chile, intercom systems, food delivery and a WhatsApp-style CRM.',
+          props:'System properties', comps:'Installed components',
+          rows:[['System','Lascadev OS, Full-Stack edition'],['Registered user','Luis Eduardo Ascanio Jiménez'],['Processor','TypeScript in production'],['Platforms','iOS · Android · Web'],['Status','Available for new projects']]}
+      };
+      const box = el.querySelector('[data-about]'), tt = el.querySelector('.tt');
+      const render = lang => {
+        const t = T[lang];
+        box.innerHTML = `<h2>Luis Ascanio · Lascadev</h2><p style="color:#555">${t.role}</p><p>${t.bio}</p>
+          <h3>${t.props}</h3><dl class="specs">${t.rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
+          <h3>${t.comps}</h3>${chips(['React Native','Expo','React','Angular','Ionic','Node.js','Express','NestJS','FastAPI','.NET Core','TypeScript','Firebase','Azure'])}`;
+        tt.textContent = t.title;
+        el.querySelectorAll('.lang').forEach(b => { const on = b.dataset.lang === lang; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+      };
+      el.querySelector('.langs').addEventListener('click', e => {
+        const b = e.target.closest('.lang'); if (!b || b.classList.contains('on')) return;
+        box.classList.add('fading');
+        setTimeout(() => { render(b.dataset.lang); box.classList.remove('fading'); }, 180);
+      });
+      render('es');
+    }},
+  cv:{title:'Luis_Ascanio_CV.pdf - Lector de documentos', label:'Mi CV', sub:'Experiencia y habilidades', w:700, h:580, html:()=>`
+    <div class="tool">Página 1 de 1 · 100%</div>
+    <div class="reader"><div class="page">
+      <h2>Luis Eduardo Ascanio Jiménez</h2>
+      <p class="sub">Desarrollador Full Stack — Web &amp; Mobile (React, React Native, Angular, Node.js)</p>
+      <p class="sub">${EMAIL} · <a href="https://linkedin.com/in/luis-eduardo-ascanio-jimenez-bb269317b" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://github.com/triusdeil" target="_blank" rel="noopener">GitHub</a></p>
+      <h3>Perfil profesional</h3>
+      <p>Ingeniero Informático con más de 5 años de experiencia en desarrollo full stack para web y móvil, desde el diseño de interfaces hasta la implementación de backends y su despliegue en producción. Experiencia construyendo aplicaciones React Native (Expo) para Android e iOS, aplicaciones web con React y Angular, y servicios backend con Node.js/Express, FastAPI y .NET Core. Habituado a entornos multi-proyecto con integraciones a Firebase, Azure y servicios en la nube, y a resolver incidencias de seguridad, rendimiento y compatibilidad en producción.</p>
+      <h3>Habilidades técnicas</h3>
+      <dl class="cv-skills">
+        <dt>Lenguajes</dt><dd>JavaScript, TypeScript, Python, C#, Kotlin</dd>
+        <dt>Frontend &amp; Mobile</dt><dd>React, React Native (Expo), Angular, Ionic/Capacitor, Next.js</dd>
+        <dt>Backend</dt><dd>Node.js/Express, NestJS, FastAPI, .NET Core</dd>
+        <dt>Datos &amp; Cloud</dt><dd>MongoDB, Firebase, Azure (Key Vault, DevOps), SQL Server</dd>
+        <dt>Herramientas</dt><dd>Git, Azure DevOps, Docker, EAS Build, Figma, Postman, Snyk</dd>
+      </dl>
+      <h3>Experiencia laboral</h3>
+      <div class="job">Technology Partners — Desarrollador de Aplicaciones Móviles <span>Ago 2025 – Sep 2026 · Puerto Rico (remoto)</span></div>
+      <ul>
+        <li>AutoExpreso, app de pago de peajes en React Native/Expo: compatibilidad con Android 15 (API 35) y páginas de memoria de 16 KB, notificaciones push (Firebase/FCM) y Face ID en iOS 18+.</li>
+        <li>CsmApp, app React Native para la Cooperativa de Seguros Múltiples de Puerto Rico; lideré una campaña de remediación de seguridad que redujo 60 vulnerabilidades (CVEs) a 8 con Snyk y actualización dirigida de dependencias.</li>
+        <li>Endpoints en un middleware Node.js/Express/TypeScript para gestión de vehículos, entidades y seguimiento en tiempo real vía WebSocket, con logging estructurado y sanitización de datos sensibles.</li>
+        <li>GCSMApp.Asistencia, aplicación web Angular con theming dual web/móvil y flujos de asistencia vehicular y patrimonial.</li>
+        <li>Corrección de errores de producción en BellaGroup.Mobile (Ionic/Angular/Capacitor) y soporte a pipelines iOS/Android con Azure Key Vault y .NET.</li>
+      </ul>
+      <div class="job">Citolink — Desarrollador Full Stack (React Native / Express) <span>Mar 2024 – Feb 2025</span></div>
+      <ul>
+        <li>Desarrollo completo de tres aplicaciones móviles en React Native (TypeScript) para Android e iOS, del diseño al mantenimiento.</li>
+        <li>Backend en Express con TypeScript, con Firebase como base de datos y sistema de autenticación.</li>
+        <li>Frontend web con React, TypeScript y Tailwind CSS.</li>
+      </ul>
+      <div class="job">Nextstation — Desarrollador Full Stack (Frontend, Mobile &amp; Backend) <span>May 2022 – Dic 2024</span></div>
+      <ul>
+        <li>Creación de aplicaciones web y móviles: diseño, desarrollo e implementación de nuevas funcionalidades.</li>
+        <li>Diseño de interfaces y experiencia de usuario (UX/UI) con Figma.</li>
+        <li>Aplicaciones móviles con React Native (TypeScript) y React.js, con foco en rendimiento y escalabilidad.</li>
+        <li>Backends con Python FastAPI, optimizando la comunicación entre frontend y base de datos.</li>
+      </ul>
+      <div class="job">BaatDigital — Desarrollador Frontend (React) <span>Jun 2021 – May 2022</span></div>
+      <ul>
+        <li>Aplicaciones móviles con React Native (TypeScript) y React.js.</li>
+        <li>Interfaces responsivas con Material UI, Bootstrap y Materialize.</li>
+      </ul>
+      <div class="job">Filamento X — Desarrollador Frontend (React) <span>Mar 2021 – Jun 2021</span></div>
+      <ul>
+        <li>Aplicaciones frontend con React.js y TypeScript, enfocadas en rendimiento y usabilidad.</li>
+        <li>Interfaces dinámicas y responsivas con Material UI y Bootstrap.</li>
+      </ul>
+      <div class="job">Freelancer <span>Ene 2020 – Abr 2021</span></div>
+      <ul>
+        <li>Videojuegos con Unity y C#.</li>
+        <li>Aplicaciones web con React.js y backends con Express.js, Ruby y MongoDB.</li>
+      </ul>
+      <div class="job">Soluciones Tecnocam — Desarrollador de Aplicaciones de Escritorio <span>Ene 2020 – Dic 2020</span></div>
+      <ul><li>Aplicaciones de escritorio en C# con interfaces modernas usando Bunifu UI.</li></ul>
+      <h3>Educación</h3>
+      <div class="job">Ingeniería Informática — UNERG <span>2017 – 2020</span></div>
+      <div class="job" style="margin-top:6px">Analista Programador — Centro Escuela de Sistemas e Informática <span>2018</span></div>
+      <h3>Certificaciones y formación</h3>
+      <ul>
+        <li>Udemy &amp; Platzi (2017–2024): React.js, React Native, TypeScript, C#, SQL Server, Express, Redux, gRPC, .NET Core, MongoDB, Docker.</li>
+        <li>Certificaciones: Programación C#, Desarrollo de Videojuegos con Unity, Unity VR &amp; AR, MongoDB, ES6 JS.</li>
+      </ul>
+    </div></div>
+    <div class="status">Luis_Ascanio_CV.pdf</div>`},
+  projects:{title:'Mis Proyectos', label:'Mis Proyectos', sub:'Trabajo reciente', w:720, h:500, html:()=>`
+    <div class="menubar"><span>Archivo</span><span>Edición</span><span>Ver</span><span>Favoritos</span><span>Ayuda</span></div>
+    <div class="addr">Dirección <div>${ICONS.folder}C:\\Lascadev\\Proyectos</div></div>
+    <div class="explorer">
+      <aside class="tasks-pane"><div class="tp-box"><h4>Detalles</h4><div class="in" data-detail></div></div></aside>
+      <div class="files" data-files>${PROJECTS.map((p,i)=>`<button class="file" data-i="${i}">${ICONS.folder}<span>${p.name}</span><small>${p.stack[0]}</small></button>`).join('')}</div>
+    </div>
+    <div class="status">${PROJECTS.length} objetos</div>`,
+    init(el){
+      const det = el.querySelector('[data-detail]');
+      const pick = i => {
+        el.querySelectorAll('.file').forEach(f=>f.classList.toggle('sel', +f.dataset.i===i));
+        const p = PROJECTS[i];
+        det.innerHTML = `<b>${p.name}</b><div class="kind">${p.kind}<br>${p.company}</div><p>${p.desc}</p>${chips(p.stack)}`;
+      };
+      el.querySelector('[data-files]').addEventListener('click', e => { const f = e.target.closest('.file'); if (f) pick(+f.dataset.i); });
+      pick(0);
+    }},
+  contact:{title:'Contáctame - Mensaje nuevo', label:'Contáctame', sub:'Escríbeme un correo', w:520, h:400, html:()=>`
+    <form class="mail" data-form>
+      <div class="mrow"><span>Para:</span><div class="to"><code>${EMAIL}</code><button type="button" class="xbtn" data-copy>Copiar</button></div></div>
+      <div class="mrow"><label for="c-subject">Asunto:</label><input id="c-subject" value="Propuesta de proyecto"></div>
+      <textarea id="c-body" aria-label="Mensaje">Hola Luis, vi tu portafolio y me gustaría conversar sobre una app…</textarea>
+      <div class="send-row"><button class="xbtn" type="submit">Copiar mensaje</button><span data-msg>Copia el mensaje y envíalo a mi correo.</span></div>
+    </form>`,
+    init(el){
+      const msg = el.querySelector('[data-msg]');
+      const copy = (text, ok) => {
+        const done = () => msg.textContent = ok;
+        if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => msg.textContent = 'No se pudo copiar. Selecciona el texto manualmente.');
+        else msg.textContent = 'Selecciona el texto manualmente.';
+      };
+      el.querySelector('[data-copy]').addEventListener('click', () => copy(EMAIL, 'Correo copiado.'));
+      el.querySelector('[data-form]').addEventListener('submit', e => {
+        e.preventDefault();
+        copy(`Para: ${EMAIL}\nAsunto: ${el.querySelector('#c-subject').value}\n\n${el.querySelector('#c-body').value}`, `Mensaje copiado. Pégalo en un correo a ${EMAIL}.`);
+      });
+    }},
+  terminal:{title:'Símbolo del sistema', label:'Terminal', sub:'Para curiosos', w:580, h:360, html:()=>`
+    <div class="term" data-term><pre data-out>Lascadev OS [Versión 26.9]
+(C) Luis. Hecho a mano.
+
+Escribe <span class="hl">help</span> para ver los comandos.
+</pre><div class="ln"><span>C:\\Lascadev&gt;&nbsp;</span><input data-in aria-label="Comando" autocomplete="off" spellcheck="false"></div></div>`,
+    init(el){
+      const out = el.querySelector('[data-out]'), inp = el.querySelector('[data-in]'), term = el.querySelector('[data-term]');
+      const CMDS = {
+        help:()=>'Comandos: whoami, skills, proyectos, contacto, abrir <sobre|cv|proyectos|contacto>, fecha, cls',
+        whoami:()=>'Luis Eduardo Ascanio Jiménez (Lascadev) — Desarrollador Full Stack web y móvil, Venezuela.',
+        skills:()=>'Lenguajes: JavaScript, TypeScript, Python, C#, Kotlin\nFrontend/Mobile: React, React Native (Expo), Angular, Ionic/Capacitor, Next.js\nBackend: Node.js/Express, NestJS, FastAPI, .NET Core\nDatos/Cloud: MongoDB, Firebase, Azure, SQL Server',
+        proyectos:()=>PROJECTS.map(p=>` - ${p.name.padEnd(20)} ${p.kind}`).join('\n'),
+        contacto:()=>EMAIL,
+        fecha:()=>new Date().toLocaleString('es-VE'),
+      };
+      const map = {sobre:'about',cv:'cv',proyectos:'projects',contacto:'contact'};
+      const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+      inp.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        const raw = inp.value.trim(); inp.value = '';
+        const [c, arg] = raw.toLowerCase().split(/\s+/);
+        if (c === 'cls' || c === 'clear') { out.textContent = ''; return; }
+        let res = '';
+        if (!c) res = '';
+        else if (c === 'abrir' && map[arg]) { openApp(map[arg]); res = `Abriendo ${arg}…`; }
+        else if (CMDS[c]) res = CMDS[c]();
+        else res = `"${raw}" no se reconoce como un comando. Escribe help.`;
+        out.innerHTML += `\nC:\\Lascadev&gt; ${esc(raw)}\n${esc(res)}\n`;
+        term.scrollTop = term.scrollHeight;
+      });
+      term.addEventListener('click', () => inp.focus());
+      setTimeout(() => inp.focus(), 50);
+    }}
+};
+APPS.doom = {title:'Freedoom', label:'Freedoom', sub:'Acceso directo · juego', w:700, h:520, html:()=>`
+  <iframe class="game" src="freedoom/game.html" title="Freedoom" allow="autoplay; fullscreen"></iframe>
+  <div class="status game-status"><span>WASD moverse · ← → girar · Espacio disparar · E usar · Esc menú</span>
+  <span><a href="https://freedoom.github.io/" target="_blank" rel="noopener">Freedoom</a> (licencia BSD) · motor <a href="https://github.com/cloudflare/doom-wasm" target="_blank" rel="noopener">doom-wasm</a> (GPL-2)</span></div>`,
+  init(el){
+    const f = el.querySelector('iframe');
+    el.querySelector('.wbody').style.background = '#000';
+    el.addEventListener('pointerdown', () => setTimeout(() => f.focus(), 0));
+    f.addEventListener('load', () => f.focus());
+  }};
+window.addEventListener('blur', () => setTimeout(() => {
+  const a = document.activeElement;
+  if (a && a.tagName === 'IFRAME' && wins.doom && wins.doom.el.contains(a)) focusWin('doom');
+}, 0));
+const DESK_ORDER = ['about','cv','projects','contact','terminal','doom'];
+
+/* ---------- Screens ---------- */
+const $ = s => document.querySelector(s);
+let timers = [];
+const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+function show(id){ document.querySelectorAll('.screen').forEach(s => s.hidden = s.id !== id); }
+
+function boot(){
+  clearTimers(); closeAll(); show('boot');
+  later(toBlack, 4200);
+}
+function toBlack(){ clearTimers(); show('black'); later(() => { show('login'); $('#userBtn').focus(); }, 1100); }
+$('#boot').addEventListener('click', toBlack);
+$('#boot').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') toBlack(); });
+$('#restartBtn').addEventListener('click', () => { show('black'); timers.push(setTimeout(boot, 900)); });
+$('#userBtn').addEventListener('click', () => {
+  chime(); show('welcome');
+  later(() => { show('desktop'); drawWall(); later(() => $('#balloon').hidden = false, 900); later(() => $('#balloon').hidden = true, 11000); }, 2000);
+});
+
+/* Original startup chime (Web Audio) */
+function chime(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const master = ctx.createGain(); master.gain.value = .18; master.connect(ctx.destination);
+    const notes = [[311.13,0],[466.16,.18],[622.25,.36],[698.46,.62],[932.33,.62]];
+    notes.forEach(([f,t]) => {
+      ['sine','triangle'].forEach((type,k) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = type; o.frequency.value = f * (k ? 2 : 1);
+        g.gain.setValueAtTime(0, ctx.currentTime + t);
+        g.gain.linearRampToValueAtTime(k ? .12 : .5, ctx.currentTime + t + .05);
+        g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + t + 2.4);
+        o.connect(g); g.connect(master); o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 2.5);
+      });
+    });
+  }catch(e){}
+}
+
+/* ---------- Wallpaper (drawn, original) ---------- */
+const wall = $('#wall');
+function rng(seed){ return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+function drawWall(){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = wall.clientWidth, h = wall.clientHeight; if (!w || !h) return;
+  wall.width = w * dpr; wall.height = h * dpr;
+  const c = wall.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0);
+  const r = rng(42);
+  let g = c.createLinearGradient(0,0,0,h*.65);
+  g.addColorStop(0,'#1c5bd0'); g.addColorStop(.55,'#4b8fe6'); g.addColorStop(1,'#b7d8f6');
+  c.fillStyle = g; c.fillRect(0,0,w,h);
+  c.save(); c.filter = 'blur(14px)';
+  for (let i=0;i<9;i++){
+    const x = r()*w, y = h*(.06 + r()*.3), rx = 60 + r()*140, ry = 18 + r()*30;
+    c.fillStyle = `rgba(255,255,255,${.35 + r()*.4})`;
+    c.beginPath(); c.ellipse(x,y,rx,ry,0,0,Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(x+rx*.4,y-ry*.5,rx*.5,ry*.9,0,0,Math.PI*2); c.fill();
+  }
+  c.restore();
+  // back hill
+  c.beginPath(); c.moveTo(w*.35,h); c.lineTo(w*.35,h*.66);
+  c.quadraticCurveTo(w*.75,h*.5, w,h*.58); c.lineTo(w,h); c.closePath();
+  g = c.createLinearGradient(0,h*.5,0,h); g.addColorStop(0,'#8ccf5a'); g.addColorStop(1,'#4f9a2c');
+  c.fillStyle = g; c.fill();
+  // main hill
+  c.beginPath(); c.moveTo(0,h*.36);
+  c.bezierCurveTo(w*.22,h*.18, w*.5,h*.34, w*.78,h*.62);
+  c.quadraticCurveTo(w*.9,h*.72, w,h*.76); c.lineTo(w,h); c.lineTo(0,h); c.closePath();
+  g = c.createLinearGradient(0,h*.2,w*.2,h); g.addColorStop(0,'#7ccd3e'); g.addColorStop(.45,'#3f9a22'); g.addColorStop(1,'#1f6a12');
+  c.fillStyle = g; c.fill();
+  // sunlight on crest
+  c.save(); c.clip();
+  g = c.createRadialGradient(w*.3,h*.25,10,w*.3,h*.25,w*.5);
+  g.addColorStop(0,'rgba(230,255,160,.35)'); g.addColorStop(1,'rgba(230,255,160,0)');
+  c.fillStyle = g; c.fillRect(0,0,w,h);
+  // grass strokes
+  for (let i=0;i<Math.min(2600, w*2.2);i++){
+    const x = r()*w, y = h*.45 + Math.pow(r(),.6)*h*.6, len = 3 + (y/h)*14*r();
+    c.strokeStyle = r() > .5 ? 'rgba(30,90,15,.35)' : 'rgba(170,230,110,.28)';
+    c.lineWidth = .6 + (y/h)*1.1;
+    c.beginPath(); c.moveTo(x,y); c.lineTo(x + (r()-.5)*4, y - len); c.stroke();
+  }
+  // flowers
+  for (let i=0;i<40;i++){ const x=r()*w, y=h*.75+r()*h*.25; c.fillStyle='rgba(255,236,90,.9)'; c.beginPath(); c.arc(x,y,1+r()*1.6,0,7); c.fill(); }
+  c.restore();
+  // watermark, bottom right (above the taskbar)
+  const s = Math.max(22, Math.min(w*.035, 44));
+  c.save();
+  c.textAlign = 'right'; c.textBaseline = 'alphabetic';
+  c.shadowColor = 'rgba(0,0,0,.25)'; c.shadowBlur = 4;
+  c.font = `800 ${s}px "Libre Franklin", Arial, sans-serif`;
+  c.fillStyle = 'rgba(255,255,255,.42)';
+  c.fillText('LASCADEV', w - 18, h - 30 - 28);
+  c.font = `italic 700 ${Math.round(s*.36)}px "Libre Franklin", Arial, sans-serif`;
+  c.fillStyle = 'rgba(255,255,255,.5)';
+  c.fillText('Portafolio · Full-Stack Developer', w - 20, h - 30 - 12);
+  c.restore();
+}
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (!$('#desktop').hidden) drawWall(); }, 120); });
+if (document.fonts) document.fonts.ready.then(() => { if (!$('#desktop').hidden) drawWall(); });
+
+/* ---------- Desktop icons ---------- */
+const coarse = matchMedia('(pointer:coarse)').matches;
+const iconsEl = $('#icons');
+DESK_ORDER.forEach(id => {
+  const b = document.createElement('button');
+  b.className = 'dicon'; b.dataset.app = id;
+  b.innerHTML = `${ICONS[id]}<span>${APPS[id].label}</span>`;
+  b.addEventListener('click', e => { e.stopPropagation(); selectIcon(b); if (coarse) openApp(id); });
+  b.addEventListener('dblclick', () => openApp(id));
+  b.addEventListener('keydown', e => { if (e.key === 'Enter') openApp(id); });
+  iconsEl.appendChild(b);
+});
+function selectIcon(b){ document.querySelectorAll('#desktop .dicon').forEach(x => x.classList.toggle('sel', x === b)); }
+
+/* ---------- Recycle bin + confirm dialog ---------- */
+const bin = document.createElement('button');
+bin.className = 'dicon bin';
+bin.innerHTML = `${ICONS.trash}<span>Papelera de reciclaje</span>`;
+bin.addEventListener('click', e => { e.stopPropagation(); selectIcon(bin); if (coarse) binDialog(); });
+bin.addEventListener('dblclick', binDialog);
+bin.addEventListener('keydown', e => { if (e.key === 'Enter') binDialog(); });
+$('#desktop').insertBefore(bin, $('#wins'));
+
+function errorBeep(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [[196,0],[147,.13]].forEach(([f,t]) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'triangle'; o.frequency.value = f;
+      g.gain.setValueAtTime(.0001, ctx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(.22, ctx.currentTime + t + .02);
+      g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + t + .45);
+      o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + .5);
+    });
+  }catch(e){}
+}
+function binDialog(){
+  if ($('#dlg')) return;
+  errorBeep();
+  const wrap = document.createElement('div');
+  wrap.id = 'dlg'; wrap.className = 'dlg-wrap';
+  wrap.innerHTML = `<div class="win dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgT" aria-describedby="dlgM">
+    <div class="tbar"><span class="tt" id="dlgT">Error</span><button class="wb x" data-no aria-label="Cerrar">${BTN.x}</button></div>
+    <div class="dlg-body">
+      <svg class="dlg-ic" viewBox="0 0 48 48" aria-hidden="true"><defs><radialGradient id="dx" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#ff8a7a"/><stop offset=".6" stop-color="#e0231b"/><stop offset="1" stop-color="#a50e0a"/></radialGradient></defs><circle cx="24" cy="24" r="20" fill="url(#dx)" stroke="#fff" stroke-width="2.5"/><path d="M16.5 16.5l15 15M31.5 16.5l-15 15" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
+      <p id="dlgM">¿Está seguro de que desea cancelar la solicitud de este CV?<small>Si elige Sí, el sistema se reiniciará.</small></p>
+    </div>
+    <div class="dlg-btns"><button class="xbtn" data-yes>Sí</button><button class="xbtn" data-no>No</button></div>
+  </div>`;
+  $('#desktop').appendChild(wrap);
+  const close = () => wrap.remove();
+  wrap.querySelectorAll('[data-no]').forEach(b => b.addEventListener('click', close));
+  wrap.querySelector('[data-yes]').addEventListener('click', () => { close(); closeAll(); show('black'); timers.push(setTimeout(boot, 1200)); });
+  wrap.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  wrap.querySelector('[data-no].xbtn').focus();
+}
+$('#desktop').addEventListener('pointerdown', e => {
+  if (!e.target.closest('.dicon')) selectIcon(null);
+  if (!e.target.closest('#smenu') && !e.target.closest('#startBtn')) toggleStart(false);
+});
+
+/* ---------- Start menu ---------- */
+$('#smLeft').innerHTML = DESK_ORDER.map(id => `<li><button data-open="${id}">${ICONS[id]}<span><b>${APPS[id].label}</b><small>${APPS[id].sub}</small></span></button></li>`).join('');
+$('#smRight').innerHTML = [['projects','Mis Documentos'],['cv','Currículum'],['contact','Correo'],['terminal','Ejecutar…']]
+  .map(([id,t]) => `<li><button data-open="${id}">${ICONS[id]}${t}</button></li>`).join('');
+$('#smenu').addEventListener('click', e => { const b = e.target.closest('[data-open]'); if (b){ openApp(b.dataset.open); toggleStart(false); } });
+function toggleStart(on){ const m = $('#smenu'); on = on ?? m.hidden; m.hidden = !on; $('#startBtn').classList.toggle('on', on); }
+$('#startBtn').addEventListener('click', () => toggleStart());
+$('#logoffBtn').addEventListener('click', () => { toggleStart(false); closeAll(); show('login'); });
+$('#offBtn').addEventListener('click', () => { toggleStart(false); closeAll(); show('black'); timers.push(setTimeout(boot, 1200)); });
+$('#balloonX').addEventListener('click', () => $('#balloon').hidden = true);
+
+/* ---------- Window manager ---------- */
+const winsEl = $('#wins'), tasksEl = $('#tasks');
+const wins = {}; let z = 10, cascade = 0;
+const narrow = () => innerWidth <= 680;
+const BTN = {
+  min:'<svg viewBox="0 0 11 11"><rect x="2" y="7" width="6" height="2" fill="#fff"/></svg>',
+  max:'<svg viewBox="0 0 11 11"><rect x="1.5" y="1.5" width="8" height="8" fill="none" stroke="#fff" stroke-width="1.6"/><rect x="1.5" y="1.5" width="8" height="2" fill="#fff"/></svg>',
+  x:'<svg viewBox="0 0 11 11"><path d="M2 2l7 7M9 2l-7 7" stroke="#fff" stroke-width="2"/></svg>'
+};
+function openApp(id){
+  const app = APPS[id];
+  if (wins[id]) { wins[id].el.hidden = false; focusWin(id); return; }
+  const el = document.createElement('section');
+  el.className = 'win'; el.setAttribute('aria-label', app.title);
+  const W = Math.min(app.w, innerWidth - 20), H = Math.min(app.h, innerHeight - 50);
+  const off = (cascade++ % 6) * 26;
+  el.style.width = W + 'px'; el.style.height = H + 'px';
+  el.style.left = Math.max(10, Math.min((innerWidth - W) / 2 - 60 + off, innerWidth - W - 10)) + 'px';
+  el.style.top = Math.max(10, Math.min((innerHeight - 30 - H) / 2 - 40 + off, innerHeight - 40 - H)) + 'px';
+  el.innerHTML = `<div class="tbar"><svg class="ti" viewBox="0 0 48 48">${ICONS[id].replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg><span class="tt">${app.title}</span>
+    <button class="wb" data-a="min" aria-label="Minimizar">${BTN.min}</button><button class="wb" data-a="max" aria-label="Maximizar">${BTN.max}</button><button class="wb x" data-a="x" aria-label="Cerrar">${BTN.x}</button></div>
+    <div class="wbody">${app.html()}</div>`;
+  winsEl.appendChild(el);
+  const tb = document.createElement('button');
+  tb.className = 'tbtn'; tb.innerHTML = `${ICONS[id]}<span>${app.label}</span>`;
+  tb.addEventListener('click', () => {
+    if (el.hidden) { el.hidden = false; focusWin(id); }
+    else if (tb.classList.contains('active')) minimize(id);
+    else focusWin(id);
+  });
+  tasksEl.appendChild(tb);
+  wins[id] = {el, tb};
+  el.addEventListener('pointerdown', () => focusWin(id));
+  el.querySelector('.tbar').addEventListener('click', e => {
+    const a = e.target.closest('[data-a]')?.dataset.a;
+    if (a === 'min') minimize(id); else if (a === 'max') toggleMax(id); else if (a === 'x') closeWin(id);
+  });
+  el.querySelector('.tbar').addEventListener('dblclick', e => { if (!e.target.closest('.wb')) toggleMax(id); });
+  drag(el);
+  if (app.init) app.init(el);
+  focusWin(id);
+}
+function focusWin(id){
+  Object.entries(wins).forEach(([k,w]) => { const on = k === id && !w.el.hidden; w.el.classList.toggle('inactive', !on); w.tb.classList.toggle('active', on); });
+  wins[id].el.style.zIndex = ++z;
+}
+function minimize(id){ const w = wins[id]; w.el.hidden = true; w.tb.classList.remove('active'); w.el.classList.add('inactive'); }
+function toggleMax(id){
+  const el = wins[id].el;
+  if (el.classList.toggle('max')) {
+    el.dataset.prev = el.style.cssText;
+    Object.assign(el.style, {left:'0px', top:'0px', width:'100%', height:'100%'});
+  } else { const zz = el.style.zIndex; el.style.cssText = el.dataset.prev; el.style.zIndex = zz; }
+}
+function closeWin(id){ const w = wins[id]; w.el.remove(); w.tb.remove(); delete wins[id]; }
+function closeAll(){ Object.keys(wins).forEach(closeWin); cascade = 0; }
+function drag(el){
+  const bar = el.querySelector('.tbar');
+  bar.addEventListener('pointerdown', e => {
+    if (e.target.closest('.wb') || el.classList.contains('max') || narrow()) return;
+    const sx = e.clientX - el.offsetLeft, sy = e.clientY - el.offsetTop;
+    bar.setPointerCapture(e.pointerId);
+    const move = ev => {
+      el.style.left = Math.min(Math.max(ev.clientX - sx, 60 - el.offsetWidth), innerWidth - 60) + 'px';
+      el.style.top = Math.min(Math.max(ev.clientY - sy, 0), innerHeight - 60) + 'px';
+    };
+    const up = () => { bar.removeEventListener('pointermove', move); bar.removeEventListener('pointerup', up); };
+    bar.addEventListener('pointermove', move); bar.addEventListener('pointerup', up);
+  });
+}
+
+/* ---------- Clock ---------- */
+function tick(){ $('#clock').textContent = new Date().toLocaleTimeString('es-VE', {hour:'numeric', minute:'2-digit'}); }
+tick(); setInterval(tick, 15000);
+
+boot();
+})();
+</script>
+</body>
+</html>

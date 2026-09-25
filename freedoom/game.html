@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Freedoom</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden}
+  body{display:grid;place-items:center}
+  /* the canvas must not have border or padding, or mouse coords are off */
+  canvas{display:block;width:100vw!important;height:100vh!important;object-fit:contain;image-rendering:pixelated;background:#000;outline:none}
+  #load{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#d8d8d8;font:14px/1.4 "Lucida Console",Consolas,monospace;background:#000;text-align:center;padding:0 16px}
+  #load b{color:#ff4a2a;font-size:22px;letter-spacing:4px}
+  #bar{width:220px;max-width:80%;height:10px;border:1px solid #777}
+  #bar i{display:block;height:100%;width:0;background:#c7361a}
+</style>
+</head>
+<body>
+<canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+<div id="load"><b>FREEDOOM</b><div id="bar"><i></i></div><div id="msg">Descargando datos del juego…</div></div>
+<script>
+const $msg = document.getElementById('msg'), $bar = document.querySelector('#bar i');
+async function fetchBytes(url, onProgress){
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' al pedir ' + url);
+  const total = +res.headers.get('content-length') || 0;
+  const reader = res.body.getReader(); const parts = []; let got = 0;
+  for (;;) { const {done, value} = await reader.read(); if (done) break; parts.push(value); got += value.length; if (total) onProgress(got / total); }
+  const out = new Uint8Array(got); let o = 0; for (const p of parts) { out.set(p, o); o += p.length; }
+  return out;
+}
+function b64ToBytes(bytes){
+  $msg.textContent = 'Descomprimiendo…';
+  const bin = atob(new TextDecoder().decode(bytes).trim());
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+async function gunzipIfNeeded(bytes){
+  if (bytes[0] !== 0x1f || bytes[1] !== 0x8b) return bytes;
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+var Module = {
+  noInitialRun: true,
+  canvas: document.getElementById('canvas'),
+  print: t => console.log(t),
+  printErr: t => console.warn(t),
+  preRun: [() => {
+    Module.addRunDependency('gamedata');
+    (async () => {
+      try{
+        const [wad, cfg] = await Promise.all([
+          fetchBytes('freedoom1.b64.txt', p => $bar.style.width = Math.min(100, Math.round(p * 100)) + '%').then(b64ToBytes).then(gunzipIfNeeded),
+          fetchBytes('default.cfg.txt', () => {})
+        ]);
+        Module.FS.writeFile('/freedoom1.wad', wad);
+        Module.FS.writeFile('/default.cfg', cfg);
+        $msg.textContent = 'Iniciando motor…';
+        Module.removeRunDependency('gamedata');
+      }catch(e){ $msg.textContent = 'No se pudo cargar el juego: ' + e.message; }
+    })();
+  }],
+  onRuntimeInitialized: () => {
+    document.getElementById('load').remove();
+    Module.canvas.focus();
+    callMain(['-iwad', '/freedoom1.wad', '-window', '-nogui', '-nomusic', '-config', '/default.cfg']);
+  }
+};
+document.addEventListener('pointerdown', () => Module.canvas.focus());
+window.addEventListener('error', e => { $msg && ($msg.textContent = 'Error: ' + e.message); });
+</script>
+<script src="websockets-doom.js"></script>
+</body>
+</html>
